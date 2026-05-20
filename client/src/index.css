@@ -1,0 +1,123 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Fantasy dark-first palette — deep purple/indigo with gold accent */
+    --background: 240 15% 8%;       /* Near-black indigo */
+    --foreground: 220 20% 92%;      /* Soft white */
+    --card: 240 12% 12%;
+    --card-foreground: 220 20% 92%;
+    --popover: 240 12% 10%;
+    --popover-foreground: 220 20% 92%;
+    --primary: 265 60% 55%;         /* Purple */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 10% 18%;
+    --secondary-foreground: 220 20% 80%;
+    --muted: 240 10% 16%;
+    --muted-foreground: 220 10% 50%;
+    --accent: 265 60% 55%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 10% 20%;
+    --input: 240 10% 18%;
+    --ring: 265 60% 55%;
+    --radius: 0.75rem;
+  }
+
+  .light {
+    --background: 220 25% 97%;
+    --foreground: 240 15% 12%;
+    --card: 220 20% 99%;
+    --card-foreground: 240 15% 12%;
+    --popover: 220 20% 99%;
+    --popover-foreground: 240 15% 12%;
+    --primary: 265 60% 45%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 15% 92%;
+    --secondary-foreground: 240 15% 20%;
+    --muted: 220 15% 93%;
+    --muted-foreground: 220 10% 45%;
+    --accent: 265 60% 45%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 15% 85%;
+    --input: 220 15% 90%;
+    --ring: 265 60% 45%;
+  }
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 1rem;
+    line-height: 1.6;
+    min-height: 100dvh;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    text-wrap: balance;
+    line-height: 1.2;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  input, select, textarea {
+    background-color: hsl(var(--muted));
+    color: hsl(var(--foreground));
+  }
+}
+
+/* Dark mode via class */
+.dark {
+  color-scheme: dark;
+}
+
+/* Card shimmer animation */
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes borderGlow {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 10px rgba(251,191,36,0.3); }
+  50% { box-shadow: 0 0 25px rgba(251,191,36,0.6); }
+}
+
+/* Particle sparkle for legendary */
+@keyframes sparkle {
+  0% { opacity: 0; transform: scale(0) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1) rotate(180deg); }
+  100% { opacity: 0; transform: scale(0) rotate(360deg); }
+}
