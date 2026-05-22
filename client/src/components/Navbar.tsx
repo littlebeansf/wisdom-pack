@@ -1,7 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { useTheme } from "./ThemeProvider";
-import { useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { getDailyStatus } from "@/lib/store";
 
 const RARITY_COLORS = {
   Common: "#9ca3af",
@@ -14,11 +13,7 @@ const RARITY_COLORS = {
 export function Navbar() {
   const { theme, toggle } = useTheme();
   const [location] = useLocation();
-  const { data: status } = useQuery({
-    queryKey: ["/api/daily-status"],
-    queryFn: () => apiRequest("GET", "/api/daily-status").then(r => r.json()),
-    refetchInterval: 30000,
-  });
+  const status = getDailyStatus();
 
   const navLinks = [
     { href: "/", label: "Pack Shop" },
@@ -63,14 +58,12 @@ export function Navbar() {
 
         {/* Right side */}
         <div className="flex items-center gap-3">
-          {status && (
-            <div className="hidden sm:flex items-center gap-1.5 text-sm" data-testid="packs-remaining">
-              <span className="text-muted-foreground">Packs:</span>
-              <span className="font-bold" style={{ color: status.packsRemaining > 0 ? RARITY_COLORS.Legendary : "#ef4444" }}>
-                {status.packsRemaining}/{status.maxPacks}
-              </span>
-            </div>
-          )}
+          <div className="hidden sm:flex items-center gap-1.5 text-sm" data-testid="packs-remaining">
+            <span className="text-muted-foreground">Packs:</span>
+            <span className="font-bold" style={{ color: status.packsRemaining > 0 ? RARITY_COLORS.Legendary : "#ef4444" }}>
+              {status.packsRemaining}/{status.maxPacks}
+            </span>
+          </div>
           <button
             onClick={toggle}
             className="w-8 h-8 rounded-lg border border-border flex items-center justify-center hover:bg-muted transition-colors"
