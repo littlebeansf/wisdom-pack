@@ -11,7 +11,9 @@
 import quotesData from "./quotes_data.json";
 import type { Quote } from "../../../shared/schema";
 
-export const quotes: Quote[] = quotesData as Quote[];
+const _quotes: Quote[] = quotesData as Quote[];
+function allQuotes(): Quote[] { return _quotes; }
+export function getQuotes(): Quote[] { return _quotes; }
 
 const WINDOW_MS = 12 * 60 * 60 * 1000; // 12 hours
 const MAX_PACKS = 10;
@@ -92,9 +94,10 @@ function selectRarity(): string {
 }
 
 function pickQuote(rarity: string, exclude: number[]): Quote {
-  const pool = quotes.filter(q => q.rarity === rarity && !exclude.includes(q.id));
-  const source = pool.length > 0 ? pool : quotes.filter(q => !exclude.includes(q.id));
-  const arr = source.length > 0 ? source : quotes;
+  const q = allQuotes();
+  const pool = q.filter(x => x.rarity === rarity && !exclude.includes(x.id));
+  const source = pool.length > 0 ? pool : q.filter(x => !exclude.includes(x.id));
+  const arr = source.length > 0 ? source : q;
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
@@ -161,8 +164,9 @@ export function toggleFavorite(quoteId: number): CollectedEntry[] {
 }
 
 export function getCollectionWithQuotes() {
+  const q = allQuotes();
   return getCollection()
-    .map(entry => ({ ...entry, quote: quotes.find(q => q.id === entry.quoteId) }))
+    .map(entry => ({ ...entry, quote: q.find(x => x.id === entry.quoteId) }))
     .filter((e): e is typeof e & { quote: Quote } => !!e.quote);
 }
 
@@ -176,29 +180,31 @@ function logPackOpen(cardIds: number[], rarities: string[]): void {
 }
 
 export function getPackLog() {
+  const q = allQuotes();
   return load<PackLogEntry[]>("wp_pack_log", []).map(entry => ({
     ...entry,
     cards: entry.cardIds
-      .map(id => quotes.find(q => q.id === id))
-      .filter((q): q is Quote => !!q),
+      .map(id => q.find(x => x.id === id))
+      .filter((x): x is Quote => !!x),
   }));
 }
 
 // ── Stats ─────────────────────────────────────────────────────────────────
 
 export function getStats() {
+  const q = allQuotes();
   const col = getCollection();
   const collectedIds = new Set(col.map(e => e.quoteId));
   const rarities = ["Common", "Uncommon", "Rare", "Epic", "Legendary"] as const;
   const byRarity: Record<string, { total: number; collected: number }> = {};
   rarities.forEach(r => {
     byRarity[r] = {
-      total: quotes.filter(q => q.rarity === r).length,
-      collected: quotes.filter(q => q.rarity === r && collectedIds.has(q.id)).length,
+      total: q.filter(x => x.rarity === r).length,
+      collected: q.filter(x => x.rarity === r && collectedIds.has(x.id)).length,
     };
   });
   return {
-    totalQuotes: quotes.length,
+    totalQuotes: q.length,
     collectedQuotes: col.length,
     favorites: col.filter(e => e.isFavorite).length,
     byRarity,
@@ -206,7 +212,7 @@ export function getStats() {
 }
 
 export function getCategories(): string[] {
-  return [...new Set(quotes.map(q => q.category))].sort();
+  return [...new Set(allQuotes().map(q => q.category))].sort();
 }
 
 // ── Util ──────────────────────────────────────────────────────────────────

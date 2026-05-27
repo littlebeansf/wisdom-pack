@@ -16,6 +16,14 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        // Keep everything in one chunk — prevents JSON from being split async
+        // (which caused "quotes is not defined" on GitHub Pages)
+        manualChunks: undefined,
+        inlineDynamicImports: true,
+      },
+    },
   },
   server: {
     fs: {

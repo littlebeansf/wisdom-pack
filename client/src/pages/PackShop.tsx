@@ -5,6 +5,7 @@ import {
   getDailyStatus,
   openPack,
   getPackLog,
+  getQuotes,
 } from "@/lib/store";
 import type { Quote } from "../../../shared/schema";
 
@@ -354,7 +355,7 @@ export default function PackShop() {
             <div className="rounded-2xl p-6 border border-border bg-muted/30 text-center">
               <p className="text-muted-foreground text-sm">
                 All opened cards are automatically added to your <strong className="text-foreground">Collection</strong>.
-                Collect all {quotes.length} quotes from philosophers, visionaries, and thinkers throughout history.
+                Collect all {getQuotes().length} quotes from philosophers, visionaries, and thinkers throughout history.
               </p>
             </div>
           </div>
