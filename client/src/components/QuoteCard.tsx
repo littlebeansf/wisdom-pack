@@ -1,5 +1,27 @@
 import { useState } from "react";
 
+// Legendary card background images
+import caesarImg from "@assets/legendary/leg_01_caesar.png";
+import laotZuImg from "@assets/legendary/leg_02_laotzu.png";
+import santayanaImg from "@assets/legendary/leg_03_santayana.png";
+import yodaImg from "@assets/legendary/leg_04_yoda.png";
+import einsteinDiffImg from "@assets/legendary/leg_05_einstein_difficulty.png";
+import einsteinMistakeImg from "@assets/legendary/leg_06_einstein_mistake.png";
+import mlkImg from "@assets/legendary/leg_07_mlk.png";
+import platoImg from "@assets/legendary/leg_08_plato.png";
+import mandelaImg from "@assets/legendary/leg_09_mandela.png";
+import burkeImg from "@assets/legendary/leg_10_burke.png";
+import suntzuImg from "@assets/legendary/leg_11_suntzu.png";
+import aliImg from "@assets/legendary/leg_12_ali.png";
+import capaldiImg from "@assets/legendary/leg_13_capaldi.png";
+import twainImg from "@assets/legendary/leg_14_twain.png";
+import narutoImg from "@assets/legendary/leg_15_naruto.png";
+import shakespeareImg from "@assets/legendary/leg_16_shakespeare.png";
+import confuciusImg from "@assets/legendary/leg_17_confucius.png";
+import socratesImg from "@assets/legendary/leg_18_socrates.png";
+import spidermanImg from "@assets/legendary/leg_19_spiderman.png";
+import armstrongImg from "@assets/legendary/leg_20_armstrong.png";
+
 type Rarity = "Common" | "Uncommon" | "Rare" | "Epic" | "Legendary";
 
 export const RARITY_CONFIG: Record<Rarity, {
@@ -80,6 +102,31 @@ const CATEGORY_EMOJI: CategoryEmoji = {
   "Personal":             "✨",
 };
 
+// Legendary card image mapping — keyed by quote ID (most reliable)
+// IDs from quotes_data.json legendary entries
+const LEGENDARY_IMAGES: Record<number, string> = {
+  420: caesarImg,        // Julius Caesar — "Veni, vidi, vici."
+  75:  laotZuImg,        // Lao Tzu — "The journey of a thousand miles..."
+  83:  santayanaImg,     // George Santayana — "Those who cannot remember..."
+  111: yodaImg,          // Yoda — "Do or do not."
+  170: einsteinDiffImg,  // Einstein — "In the middle of difficulty..."
+  120: einsteinMistakeImg, // Einstein — "A person who never made a mistake..."
+  182: mlkImg,           // Martin Luther King Jr.
+  341: platoImg,         // Plato
+  375: mandelaImg,       // Nelson Mandela
+  401: burkeImg,         // Edmund Burke
+  481: suntzuImg,        // Sun Tzu
+  539: aliImg,           // Muhammad Ali
+  551: capaldiImg,       // Lewis Capaldi
+  600: twainImg,         // Mark Twain
+  640: narutoImg,        // Naruto Uzumaki
+  644: shakespeareImg,   // William Shakespeare
+  660: confuciusImg,     // Confucius
+  671: socratesImg,      // Socrates
+  791: spidermanImg,     // Uncle Ben (Spider-Man)
+  45:  armstrongImg,     // Lance Armstrong
+};
+
 type Quote = {
   id: number;
   text: string;
@@ -102,6 +149,7 @@ export function QuoteCard({ quote, isRevealed = true, size = "md", showFavorite,
   const [hovered, setHovered] = useState(false);
   const cfg = RARITY_CONFIG[quote.rarity];
   const emoji = CATEGORY_EMOJI[quote.category] || "💡";
+  const legendaryImg = quote.rarity === "Legendary" ? LEGENDARY_IMAGES[quote.id] : undefined;
 
   const sizeClasses = {
     sm: "w-44 h-64",
@@ -150,7 +198,7 @@ export function QuoteCard({ quote, isRevealed = true, size = "md", showFavorite,
     <div
       className={`${sizeClasses[size]} rounded-xl relative overflow-hidden flex flex-col select-none`}
       style={{
-        background: cfg.bg,
+        background: legendaryImg ? `url(${legendaryImg}) center/cover no-repeat` : cfg.bg,
         border: `2px solid ${cfg.border}`,
         boxShadow: hovered ? `0 0 30px ${cfg.glow}, 0 8px 32px rgba(0,0,0,0.4)` : `0 0 15px ${cfg.glow}40, 0 4px 16px rgba(0,0,0,0.3)`,
         transition: "box-shadow 0.3s ease, transform 0.3s ease",
@@ -160,6 +208,16 @@ export function QuoteCard({ quote, isRevealed = true, size = "md", showFavorite,
       onMouseLeave={() => setHovered(false)}
       data-testid={`quote-card-${quote.id}`}
     >
+      {/* Legendary dark overlay to ensure text readability over the illustration */}
+      {legendaryImg && (
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: "linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.25) 60%, rgba(0,0,0,0.75) 100%)",
+          }}
+        />
+      )}
+
       {/* Shimmer overlay */}
       <div
         className="absolute inset-0 pointer-events-none"
@@ -183,7 +241,7 @@ export function QuoteCard({ quote, isRevealed = true, size = "md", showFavorite,
       )}
 
       {/* Header: Category + Rarity stars */}
-      <div className="flex items-center justify-between px-3 pt-3 pb-1">
+      <div className="flex items-center justify-between px-3 pt-3 pb-1 relative z-10">
         <div className="flex items-center gap-1">
           <span className="text-base">{emoji}</span>
           <span className={`${ts.category} font-medium leading-tight`} style={{ color: cfg.color, opacity: 0.9, maxWidth: "90px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
@@ -203,23 +261,26 @@ export function QuoteCard({ quote, isRevealed = true, size = "md", showFavorite,
       </div>
 
       {/* Thin divider */}
-      <div className="mx-3 h-px" style={{ background: `${cfg.border}40` }} />
+      <div className="mx-3 h-px relative z-10" style={{ background: `${cfg.border}40` }} />
 
       {/* Quote text */}
-      <div className="flex-1 px-3 py-2 flex items-center">
+      <div className="flex-1 px-3 py-2 flex items-center relative z-10">
         <p
           className={`${ts.quote} leading-relaxed italic`}
-          style={{ color: "rgba(255,255,255,0.92)", textShadow: "0 1px 2px rgba(0,0,0,0.5)" }}
+          style={{
+            color: "rgba(255,255,255,0.95)",
+            textShadow: legendaryImg ? "0 1px 4px rgba(0,0,0,0.9), 0 0 8px rgba(0,0,0,0.7)" : "0 1px 2px rgba(0,0,0,0.5)",
+          }}
         >
           {quote.text.length > 160 ? `"${quote.text.slice(0, 157)}…"` : `"${quote.text}"`}
         </p>
       </div>
 
       {/* Footer */}
-      <div className="px-3 pb-3">
+      <div className="px-3 pb-3 relative z-10">
         <div className="flex items-center justify-between">
           <div>
-            <p className={`${ts.author} font-semibold`} style={{ color: cfg.color }}>
+            <p className={`${ts.author} font-semibold`} style={{ color: cfg.color, textShadow: legendaryImg ? "0 1px 3px rgba(0,0,0,0.9)" : "none" }}>
               — {quote.author}
             </p>
             {quote.isFromNotion && (
