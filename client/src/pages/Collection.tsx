@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { QuoteCard, RARITY_CONFIG } from "../components/QuoteCard";
-import { getCollectionWithQuotes, getCategories, toggleFavorite } from "@/lib/store";
+import { getCollectionWithQuotes, getCategories, toggleFavorite, getQuotes } from "@/lib/store";
 import type { Quote } from "../../../shared/schema";
 
 interface CollectedEntry {
@@ -11,23 +11,39 @@ interface CollectedEntry {
 }
 
 const RARITIES = ["All", "Common", "Uncommon", "Rare", "Epic", "Legendary"] as const;
+type SortMode = "rarity" | "recent" | "author" | "category";
+
+const CATEGORY_EMOJIS: Record<string, string> = {
+  "Historical Figures":   "⚔️",
+  "Philosophy & Thinkers":"🧠",
+  "Science & Innovators": "🔬",
+  "Music":                "🎵",
+  "Movies & TV":          "🎬",
+  "Anime":                "🌸",
+  "Cartoons":             "🎭",
+  "Sports":               "🏆",
+  "Politics & Leaders":   "🗳️",
+  "Literature & Writers": "📚",
+  "Personal":             "✨",
+};
 
 export default function Collection() {
   const [filterRarity, setFilterRarity] = useState("All");
   const [filterCategory, setFilterCategory] = useState("All");
   const [search, setSearch] = useState("");
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [sortMode, setSortMode] = useState<SortMode>("rarity");
   const [selectedQuote, setSelectedQuote] = useState<CollectedEntry | null>(null);
   const [, forceRender] = useState(0);
 
   // Read directly from store on each render
   const collection: CollectedEntry[] = getCollectionWithQuotes();
   const categories = getCategories();
+  const allQuotes = getQuotes();
 
   const handleToggleFavorite = useCallback((quoteId: number) => {
     toggleFavorite(quoteId);
     forceRender(n => n + 1);
-    // Keep selected quote in sync
     setSelectedQuote(prev => prev ? { ...prev, isFavorite: !prev.isFavorite } : null);
   }, []);
 
@@ -45,10 +61,22 @@ export default function Collection() {
   const rarityOrder = { Legendary: 0, Epic: 1, Rare: 2, Uncommon: 3, Common: 4 };
   const sorted = [...filtered].sort((a, b) => {
     if (a.isFavorite !== b.isFavorite) return (b.isFavorite ? 1 : 0) - (a.isFavorite ? 1 : 0);
-    return (rarityOrder[a.quote.rarity as keyof typeof rarityOrder] ?? 4) - (rarityOrder[b.quote.rarity as keyof typeof rarityOrder] ?? 4);
+    switch (sortMode) {
+      case "rarity":
+        return (rarityOrder[a.quote.rarity as keyof typeof rarityOrder] ?? 4) - (rarityOrder[b.quote.rarity as keyof typeof rarityOrder] ?? 4);
+      case "recent":
+        return new Date(b.collectedAt).getTime() - new Date(a.collectedAt).getTime();
+      case "author":
+        return a.quote.author.localeCompare(b.quote.author);
+      case "category":
+        return a.quote.category.localeCompare(b.quote.category);
+      default:
+        return 0;
+    }
   });
 
   const favCount = collection.filter(c => c.isFavorite).length;
+  const collectionProgress = Math.round((collection.length / allQuotes.length) * 100);
 
   return (
     <div className="min-h-[calc(100vh-4rem)] px-4 py-8">
@@ -56,10 +84,50 @@ export default function Collection() {
 
         <div className="mb-6">
           <h1 className="text-2xl font-bold mb-1">My Quote Collection</h1>
-          <p className="text-muted-foreground text-sm">
-            {collection.length} cards collected{favCount > 0 ? ` · ${favCount} favorites` : ""}
-          </p>
+          <div className="flex items-center gap-4 flex-wrap">
+            <p className="text-muted-foreground text-sm">
+              {collection.length} / {allQuotes.length} cards collected{favCount > 0 ? ` · ${favCount} ♥` : ""}
+            </p>
+            {collection.length > 0 && (
+              <div className="flex items-center gap-2">
+                <div className="h-1.5 w-32 rounded-full bg-muted overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-500"
+                    style={{ width: `${collectionProgress}%`, background: "linear-gradient(90deg, #7c3aed, #fbbf24)" }}
+                  />
+                </div>
+                <span className="text-xs text-muted-foreground">{collectionProgress}%</span>
+              </div>
+            )}
+          </div>
         </div>
+
+        {/* Category quick-filter pills */}
+        {categories.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            <button
+              onClick={() => setFilterCategory("All")}
+              className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${filterCategory === "All" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"}`}
+            >
+              All
+            </button>
+            {categories.map(cat => {
+              const emoji = CATEGORY_EMOJIS[cat] || "💡";
+              const active = filterCategory === cat;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setFilterCategory(active ? "All" : cat)}
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-all flex items-center gap-1 ${active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"}`}
+                  data-testid={`category-pill-${cat.replace(/\s+/g, "-").toLowerCase()}`}
+                >
+                  <span>{emoji}</span>
+                  <span>{cat}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         {/* Filters */}
         <div className="flex flex-wrap gap-3 mb-6">
@@ -80,13 +148,15 @@ export default function Collection() {
             {RARITIES.map(r => <option key={r} value={r}>{r}</option>)}
           </select>
           <select
-            value={filterCategory}
-            onChange={e => setFilterCategory(e.target.value)}
+            value={sortMode}
+            onChange={e => setSortMode(e.target.value as SortMode)}
             className="px-3 py-2 rounded-lg bg-muted border border-border text-sm focus:outline-none"
-            data-testid="filter-category"
+            data-testid="sort-mode"
           >
-            <option value="All">All Categories</option>
-            {categories.map(c => <option key={c} value={c}>{c}</option>)}
+            <option value="rarity">Sort: Rarity</option>
+            <option value="recent">Sort: Recent</option>
+            <option value="author">Sort: Author</option>
+            <option value="category">Sort: Category</option>
           </select>
           <button
             onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
@@ -170,7 +240,7 @@ export default function Collection() {
                 </svg>
               </button>
 
-              <div className="flex items-center gap-2 mb-4">
+              <div className="flex items-center gap-2 mb-4 flex-wrap">
                 <span
                   className="text-xs font-bold px-2 py-1 rounded-full"
                   style={{
@@ -181,7 +251,9 @@ export default function Collection() {
                 >
                   {selectedQuote.quote.rarity}
                 </span>
-                <span className="text-sm text-white/60">{selectedQuote.quote.category}</span>
+                <span className="text-sm text-white/60">
+                  {CATEGORY_EMOJIS[selectedQuote.quote.category] || "💡"} {selectedQuote.quote.category}
+                </span>
                 {selectedQuote.quote.isFromNotion && (
                   <span className="text-xs text-white/40 bg-white/10 px-2 py-0.5 rounded-full">Personal</span>
                 )}

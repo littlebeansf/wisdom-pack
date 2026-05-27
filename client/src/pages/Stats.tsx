@@ -1,11 +1,43 @@
 import { RARITY_CONFIG } from "../components/QuoteCard";
-import { getStats, getDailyStatus } from "@/lib/store";
+import { getStats, getDailyStatus, getCoins } from "@/lib/store";
+
+const CATEGORY_EMOJIS: Record<string, string> = {
+  "Historical Figures":   "⚔️",
+  "Philosophy & Thinkers":"🧠",
+  "Science & Innovators": "🔬",
+  "Music":                "🎵",
+  "Movies & TV":          "🎬",
+  "Anime":                "🌸",
+  "Cartoons":             "🎭",
+  "Sports":               "🏆",
+  "Politics & Leaders":   "🗳️",
+  "Literature & Writers": "📚",
+  "Personal":             "✨",
+};
+
+const CATEGORY_COLORS: Record<string, string> = {
+  "Historical Figures":   "#b45309",
+  "Philosophy & Thinkers":"#7c3aed",
+  "Science & Innovators": "#0891b2",
+  "Music":                "#db2777",
+  "Movies & TV":          "#1d4ed8",
+  "Anime":                "#dc2626",
+  "Cartoons":             "#16a34a",
+  "Sports":               "#ca8a04",
+  "Politics & Leaders":   "#0f766e",
+  "Literature & Writers": "#9333ea",
+  "Personal":             "#4f46e5",
+};
 
 export default function Stats() {
   const stats = getStats();
   const status = getDailyStatus();
+  const coins = getCoins();
   const completion = stats.totalQuotes > 0 ? Math.round((stats.collectedQuotes / stats.totalQuotes) * 100) : 0;
   const rarities = ["Common", "Uncommon", "Rare", "Epic", "Legendary"] as const;
+  const categoryEntries = Object.entries(stats.byCategory).sort((a, b) => b[1].total - a[1].total);
+
+  const formatCoins = (n: number) => n >= 999999 ? "∞" : n.toLocaleString();
 
   return (
     <div className="min-h-[calc(100vh-4rem)] px-4 py-8">
@@ -16,10 +48,10 @@ export default function Stats() {
         {/* KPI tiles */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
           {[
-            { label: "Total Collected", value: stats.collectedQuotes, color: "#60a5fa" },
-            { label: "Total Available", value: stats.totalQuotes, color: "#9ca3af" },
+            { label: "Collected", value: stats.collectedQuotes, color: "#60a5fa" },
+            { label: "Total Cards", value: stats.totalQuotes, color: "#9ca3af" },
             { label: "Favorites", value: stats.favorites, color: "#ef4444" },
-            { label: "Packs Today", value: `${status.packsOpened}/${status.maxPacks}`, color: "#a78bfa" },
+            { label: "Coins", value: formatCoins(coins), color: "#fbbf24" },
           ].map(stat => (
             <div
               key={stat.label}
@@ -46,7 +78,7 @@ export default function Stats() {
             />
           </div>
           <p className="text-sm text-muted-foreground mt-2">
-            {stats.collectedQuotes} of {stats.totalQuotes} quotes collected
+            {stats.collectedQuotes} of {stats.totalQuotes} quotes collected · {status.packsOpened}/{status.maxPacks} packs today
           </p>
         </div>
 
@@ -83,6 +115,37 @@ export default function Stats() {
             );
           })}
         </div>
+
+        {/* By category */}
+        {categoryEntries.length > 0 && (
+          <div className="mb-8">
+            <h2 className="font-semibold text-lg mb-4">By Category</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {categoryEntries.map(([cat, cs]) => {
+                const pct = cs.total > 0 ? Math.round((cs.collected / cs.total) * 100) : 0;
+                const color = CATEGORY_COLORS[cat] || "#6b7280";
+                const emoji = CATEGORY_EMOJIS[cat] || "💡";
+                return (
+                  <div key={cat} className="rounded-xl p-4 border border-border bg-muted/20" data-testid={`category-stat-${cat.replace(/\s+/g, "-").toLowerCase()}`}>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm">{emoji}</span>
+                        <span className="text-sm font-medium text-white/90">{cat}</span>
+                      </div>
+                      <div className="text-right text-sm">
+                        <span className="font-bold" style={{ color }}>{cs.collected}</span>
+                        <span className="text-white/40"> / {cs.total}</span>
+                      </div>
+                    </div>
+                    <div className="h-1.5 rounded-full bg-black/30 overflow-hidden">
+                      <div className="h-full rounded-full transition-all duration-700" style={{ width: `${pct}%`, background: color }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Motivational */}
         <div className="rounded-2xl border border-border bg-muted/20 p-6 text-center">

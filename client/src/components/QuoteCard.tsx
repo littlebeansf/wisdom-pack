@@ -64,14 +64,20 @@ export const RARITY_CONFIG: Record<Rarity, {
   },
 };
 
+// Persona-based category emojis
 type CategoryEmoji = Record<string, string>;
 const CATEGORY_EMOJI: CategoryEmoji = {
-  Philosophy: "🧠", Wisdom: "🦉", Stoicism: "⚖️", Life: "🌿", Success: "🏆",
-  Motivation: "⚡", Love: "❤️", Death: "☯️", Time: "⏳", Power: "👑",
-  Nature: "🌲", Science: "🔬", Art: "🎨", Politics: "🗳️", Freedom: "🕊️",
-  Truth: "💎", Knowledge: "📚", Happiness: "✨", Courage: "🦁", Friendship: "🤝",
-  Money: "💰", War: "⚔️", Peace: "☮️", Religion: "🙏", Humor: "😄",
-  History: "📜", Leadership: "🌟", Change: "🔄", Character: "🎭",
+  "Historical Figures":   "⚔️",
+  "Philosophy & Thinkers":"🧠",
+  "Science & Innovators": "🔬",
+  "Music":                "🎵",
+  "Movies & TV":          "🎬",
+  "Anime":                "🌸",
+  "Cartoons":             "🎭",
+  "Sports":               "🏆",
+  "Politics & Leaders":   "🗳️",
+  "Literature & Writers": "📚",
+  "Personal":             "✨",
 };
 
 type Quote = {
@@ -176,11 +182,11 @@ export function QuoteCard({ quote, isRevealed = true, size = "md", showFavorite,
         }} />
       )}
 
-      {/* Header: Category + Rarity */}
+      {/* Header: Category + Rarity stars */}
       <div className="flex items-center justify-between px-3 pt-3 pb-1">
         <div className="flex items-center gap-1">
           <span className="text-base">{emoji}</span>
-          <span className={`${ts.category} font-medium`} style={{ color: cfg.color, opacity: 0.9 }}>
+          <span className={`${ts.category} font-medium leading-tight`} style={{ color: cfg.color, opacity: 0.9, maxWidth: "90px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
             {quote.category}
           </span>
         </div>

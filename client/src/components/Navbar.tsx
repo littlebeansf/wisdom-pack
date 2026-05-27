@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { useTheme } from "./ThemeProvider";
-import { getDailyStatus } from "@/lib/store";
+import { getDailyStatus, getCoins } from "@/lib/store";
 
 const RARITY_COLORS = {
   Common: "#9ca3af",
@@ -14,12 +14,19 @@ export function Navbar() {
   const { theme, toggle } = useTheme();
   const [location] = useLocation();
   const status = getDailyStatus();
+  const coins = getCoins();
 
   const navLinks = [
     { href: "/", label: "Pack Shop" },
     { href: "/collection", label: "My Collection" },
     { href: "/stats", label: "Stats" },
   ];
+
+  const formatCoins = (n: number) => {
+    if (n >= 1_000_000) return "∞";
+    if (n >= 1000) return `${(n / 1000).toFixed(0)}k`;
+    return n.toString();
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/90 backdrop-blur-md">
@@ -58,12 +65,26 @@ export function Navbar() {
 
         {/* Right side */}
         <div className="flex items-center gap-3">
+          {/* Coin balance */}
+          <div
+            className="hidden sm:flex items-center gap-1.5 text-sm px-3 py-1 rounded-lg"
+            style={{ background: "rgba(251,191,36,0.08)", border: "1px solid rgba(251,191,36,0.2)" }}
+            data-testid="coin-balance"
+          >
+            <span style={{ fontSize: "14px" }}>🪙</span>
+            <span className="font-bold tabular-nums" style={{ color: RARITY_COLORS.Legendary }}>
+              {formatCoins(coins)}
+            </span>
+          </div>
+
+          {/* Packs remaining */}
           <div className="hidden sm:flex items-center gap-1.5 text-sm" data-testid="packs-remaining">
             <span className="text-muted-foreground">Packs:</span>
             <span className="font-bold" style={{ color: status.packsRemaining > 0 ? RARITY_COLORS.Legendary : "#ef4444" }}>
               {status.packsRemaining}/{status.maxPacks}
             </span>
           </div>
+
           <button
             onClick={toggle}
             className="w-8 h-8 rounded-lg border border-border flex items-center justify-center hover:bg-muted transition-colors"
