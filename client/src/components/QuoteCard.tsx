@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-// Legendary card background images
+// Legendary card background images — original 20
 import caesarImg from "@assets/legendary/leg_01_caesar.png";
 import laotZuImg from "@assets/legendary/leg_02_laotzu.png";
 import santayanaImg from "@assets/legendary/leg_03_santayana.png";
@@ -21,6 +21,18 @@ import confuciusImg from "@assets/legendary/leg_17_confucius.png";
 import socratesImg from "@assets/legendary/leg_18_socrates.png";
 import spidermanImg from "@assets/legendary/leg_19_spiderman.png";
 import armstrongImg from "@assets/legendary/leg_20_armstrong.png";
+
+// Legendary card background images — new 10
+import descartesImg from "@assets/legendary/leg_21_descartes.png";
+import nietzscheImg from "@assets/legendary/leg_22_nietzsche.png";
+import gandhiImg from "@assets/legendary/leg_23_gandhi.png";
+import stevejobsImg from "@assets/legendary/leg_24_stevejobs.png";
+import frostImg from "@assets/legendary/leg_25_frost.png";
+import rooseveltTImg from "@assets/legendary/leg_26_roosevelt.png";
+import jfkImg from "@assets/legendary/leg_27_jfk.png";
+import buzzImg from "@assets/legendary/leg_28_buzzlightyear.png";
+import tolkienImg from "@assets/legendary/leg_29_tolkien.png";
+import eleanorImg from "@assets/legendary/leg_30_eleanor.png";
 
 type Rarity = "Common" | "Uncommon" | "Rare" | "Epic" | "Legendary";
 
@@ -102,29 +114,40 @@ const CATEGORY_EMOJI: CategoryEmoji = {
   "Personal":             "✨",
 };
 
-// Legendary card image mapping — keyed by quote ID (most reliable)
-// IDs from quotes_data.json legendary entries
+// Legendary card image mapping — keyed by quote ID
+// Original 20 images
 const LEGENDARY_IMAGES: Record<number, string> = {
-  420: caesarImg,        // Julius Caesar — "Veni, vidi, vici."
-  75:  laotZuImg,        // Lao Tzu — "The journey of a thousand miles..."
-  83:  santayanaImg,     // George Santayana — "Those who cannot remember..."
-  111: yodaImg,          // Yoda — "Do or do not."
-  170: einsteinDiffImg,  // Einstein — "In the middle of difficulty..."
-  120: einsteinMistakeImg, // Einstein — "A person who never made a mistake..."
-  182: mlkImg,           // Martin Luther King Jr.
-  341: platoImg,         // Plato
-  375: mandelaImg,       // Nelson Mandela
-  401: burkeImg,         // Edmund Burke
-  481: suntzuImg,        // Sun Tzu
-  539: aliImg,           // Muhammad Ali
-  551: capaldiImg,       // Lewis Capaldi
-  600: twainImg,         // Mark Twain
-  640: narutoImg,        // Naruto Uzumaki
-  644: shakespeareImg,   // William Shakespeare
-  660: confuciusImg,     // Confucius
-  671: socratesImg,      // Socrates
-  791: spidermanImg,     // Uncle Ben (Spider-Man)
-  45:  armstrongImg,     // Lance Armstrong
+  1:  caesarImg,          // Julius Caesar — "Veni, vidi, vici."
+  2:  shakespeareImg,     // William Shakespeare — "To be, or not to be..."
+  5:  aliImg,             // Muhammad Ali — "Float like a butterfly..."
+  6:  mlkImg,             // Martin Luther King Jr. — "I have a dream..."
+  8:  capaldiImg,         // Lewis Capaldi — "I can't breathe without you..."
+  9:  yodaImg,            // Yoda — "Do or do not."
+  12: spidermanImg,       // Uncle Ben (Spider-Man) — "With great power..."
+  13: einsteinMistakeImg, // Albert Einstein — "A person who never made a mistake..."
+  16: armstrongImg,       // Lance Armstrong — "Pain is temporary."
+  18: platoImg,           // Plato — "The measure of a man..."
+  20: laotZuImg,          // Lao Tzu — "The journey of a thousand miles..."
+  21: santayanaImg,       // George Santayana — "Those who cannot remember the past..."
+  25: twainImg,           // Mark Twain — "The secret of getting ahead..."
+  28: mandelaImg,         // Nelson Mandela — "It always seems impossible..."
+  31: confuciusImg,       // Confucius — "It does not matter how slowly you go..."
+  32: socratesImg,        // Socrates — "Know thyself."
+  35: suntzuImg,          // Sun Tzu — "Power is nothing without control."
+  36: narutoImg,          // Naruto Uzumaki — "I am the storm."
+  39: einsteinDiffImg,    // Albert Einstein — "In the middle of difficulty..."
+  40: burkeImg,           // Edmund Burke — "The only thing necessary..."
+  // New 10 images
+  4:  stevejobsImg,       // Steve Jobs — "The only way to do great work..."
+  11: gandhiImg,          // Mahatma Gandhi — "Be the change you wish to see..."
+  14: frostImg,           // Robert Frost — "Two roads diverged in a wood..."
+  15: nietzscheImg,       // Friedrich Nietzsche — "That which does not kill us..."
+  17: rooseveltTImg,      // Theodore Roosevelt — "Speak softly and carry a big stick."
+  19: jfkImg,             // John F. Kennedy — "Ask not what your country can do..."
+  22: buzzImg,            // Buzz Lightyear — "To infinity and beyond!"
+  27: tolkienImg,         // J.R.R. Tolkien — "Not all those who wander are lost."
+  30: descartesImg,       // René Descartes — "It is not enough to have a good mind..."
+  37: eleanorImg,         // Eleanor Roosevelt — "The future belongs to those who believe..."
 };
 
 type Quote = {
